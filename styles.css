@@ -1,0 +1,23 @@
+/* Custom utility overrides */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Enforcing cinematic transitions across views */
+.view-container {
+    will-change: transform, opacity, filter;
+}
+
+/* Twinkle keyframe adjustments for custom layers */
+@keyframes twinkle {
+    0% { opacity: 0.2; transform: scale(0.9); }
+    100% { opacity: 0.9; transform: scale(1.1); }
+}
+
+.galaxy-star {
+    animation: twinkle infinite alternate ease-in-out;
+}
