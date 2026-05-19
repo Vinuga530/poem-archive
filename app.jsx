@@ -1,40 +1,53 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Volume2, VolumeX, ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
 import { POEMS } from './poems.js';
 
-// --- SUB-COMPONENT: GALAXY BACKGROUND ---
+// --- SUB-COMPONENT: GALAXY BACKGROUND (OPTIMIZED) ---
 function GalaxyBackground({ theme }) {
-  const stars = useMemo(() => {
-    return Array.from({ length: 140 }).map(() => ({
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 2.5 + 0.5,
-      opacity: Math.random() * 0.8 + 0.2,
-      duration: Math.random() * 5 + 4
-    }));
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect screen size to optimize particle count
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const stars = useMemo(() => {
+    const count = isMobile ? 45 : 120; 
+    return Array.from({ length: count }).map(() => ({
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 2 + 0.5,
+      opacity: Math.random() * 0.7 + 0.1,
+      duration: Math.random() * 4 + 3
+    }));
+  }, [isMobile]);
+
   return (
-    <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+    <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-black">
       <motion.div 
         className="absolute inset-0 opacity-70"
         initial={false}
         animate={{
           background: `radial-gradient(circle at 50% 50%, ${theme.from} 0%, ${theme.via} 60%, ${theme.to} 100%)`
         }}
-        transition={{ duration: 3, ease: "easeInOut" }}
+        transition={{ duration: 2.5, ease: "easeInOut" }}
+        style={{ willChange: "background" }}
       />
       <motion.div 
         className="absolute inset-[-50%] w-[200%] h-[200%]"
         animate={{ rotate: 360 }}
-        transition={{ duration: 300, repeat: Infinity, ease: "linear" }}
+        transition={{ duration: 250, repeat: Infinity, ease: "linear" }}
+        style={{ willChange: "transform" }}
       >
         {stars.map((star, i) => (
           <motion.div
             key={i}
-            className="absolute rounded-full bg-white galaxy-star shadow-[0_0_6px_rgba(255,255,255,0.7)]"
+            className="absolute rounded-full bg-white galaxy-star"
             style={{
               left: `${star.x}%`,
               top: `${star.y}%`,
@@ -46,8 +59,9 @@ function GalaxyBackground({ theme }) {
           />
         ))}
       </motion.div>
-      <div className="absolute inset-0 opacity-[0.04] mix-blend-overlay" 
-           style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}>
+      {/* Optimized Film Grain */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
+           style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}>
       </div>
     </div>
   );
@@ -55,25 +69,26 @@ function GalaxyBackground({ theme }) {
 
 // --- SUB-COMPONENT: ARCHIVE ROOM ---
 function ArchiveRoom({ poem, index, onNext, onPrev }) {
+  // Simplified animation variants for smoother mobile scrolling
   const staggerText = {
-    hidden: { opacity: 0, y: 15 },
+    hidden: { opacity: 0, y: 10 },
     visible: i => ({
       opacity: 1,
       y: 0,
-      transition: { delay: i * 0.35, duration: 1.2, ease: [0.25, 0.1, 0.25, 1] }
+      transition: { delay: i * 0.25, duration: 1, ease: "easeOut" }
     })
   };
 
   return (
     <motion.div 
       className="absolute inset-0 flex items-center justify-center z-10 view-container"
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 1.5 }}
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 1.2 }}
     >
-      <button onClick={onPrev} className="absolute left-3 md:left-12 z-30 p-4 text-gray-600 hover:text-white transition-colors">
-        <ArrowLeft strokeWidth={1} size={20} />
+      <button onClick={onPrev} className="absolute left-2 md:left-12 z-30 p-4 text-gray-600 hover:text-white transition-colors">
+        <ArrowLeft strokeWidth={1} size={24} />
       </button>
-      <button onClick={onNext} className="absolute right-3 md:right-12 z-30 p-4 text-gray-600 hover:text-white transition-colors">
-        <ArrowRight strokeWidth={1} size={20} />
+      <button onClick={onNext} className="absolute right-2 md:right-12 z-30 p-4 text-gray-600 hover:text-white transition-colors">
+        <ArrowRight strokeWidth={1} size={24} />
       </button>
 
       <div className="max-w-2xl w-full px-6 py-24 h-screen overflow-y-auto no-scrollbar">
@@ -86,8 +101,8 @@ function ArchiveRoom({ poem, index, onNext, onPrev }) {
             <motion.p
               key={i} custom={i} variants={staggerText} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-5%" }}
               className={`text-base md:text-xl leading-relaxed md:leading-loose tracking-wide ${
-                line.includes('love') || line.includes('ආදරය') 
-                ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.4)] font-medium' 
+                line.includes('love') || line.includes('ආදරය') || line.includes('ඔයා')
+                ? 'text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.3)] font-medium' 
                 : 'text-gray-300 font-light'
               }`}
             >
@@ -105,9 +120,9 @@ function ConstellationGrid({ onSelect }) {
   return (
     <motion.div 
       className="absolute inset-0 flex flex-col items-center justify-center p-6 z-10 view-container"
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 1.5 }}
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 1.2 }}
     >
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 md:gap-20 max-w-4xl w-full mt-16 max-h-[75vh] overflow-y-auto no-scrollbar">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 md:gap-20 max-w-4xl w-full mt-16 max-h-[75vh] overflow-y-auto no-scrollbar">
         {POEMS.map((poem, index) => (
           <motion.div
             key={poem.id}
@@ -147,7 +162,7 @@ function App() {
       <GalaxyBackground theme={currentTheme} />
 
       {/* Global Interface Navigation */}
-      <div className="fixed top-6 left-0 w-full flex justify-center space-x-8 z-40 text-[10px] tracking-[0.25em] uppercase font-sans text-gray-500">
+      <div className="fixed top-6 left-0 w-full flex justify-center space-x-8 z-40 text-[10px] md:text-xs tracking-[0.25em] uppercase font-sans text-gray-500">
         <button onClick={() => setView('archive')} className={`hover:text-white transition-colors ${view === 'archive' ? 'text-white' : ''}`}>The Archive</button>
         <button onClick={() => setView('grid')} className={`hover:text-white transition-colors ${view === 'grid' ? 'text-white' : ''}`}>Constellations</button>
       </div>
@@ -157,7 +172,7 @@ function App() {
         onClick={() => setAudioEnabled(!audioEnabled)}
         className="fixed bottom-6 right-6 z-40 p-3 rounded-full border border-gray-900 bg-black/40 backdrop-blur-md text-gray-500 hover:text-white transition-all duration-500"
       >
-        {audioEnabled ? <Volume2 size={16} strokeWidth={1.5} /> : <VolumeX size={16} strokeWidth={1.5} />}
+        {audioEnabled ? <Volume2 size={18} strokeWidth={1.5} /> : <VolumeX size={18} strokeWidth={1.5} />}
       </button>
 
       <AnimatePresence mode="wait">
