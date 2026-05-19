@@ -7,17 +7,16 @@
     scrollbar-width: none;
 }
 
-/* Enforcing cinematic transitions across views */
+/* Force GPU Hardware Acceleration for cinematic transitions */
 .view-container {
     will-change: transform, opacity, filter;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
 }
 
-/* Twinkle keyframe adjustments for custom layers */
-@keyframes twinkle {
-    0% { opacity: 0.2; transform: scale(0.9); }
-    100% { opacity: 0.9; transform: scale(1.1); }
-}
-
+/* Optimize star animations */
 .galaxy-star {
-    animation: twinkle infinite alternate ease-in-out;
+    will-change: opacity;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
 }
