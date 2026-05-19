@@ -29,19 +29,7 @@
     <!-- React Root Entry -->
     <div id="root"></div>
 
-    <!-- Import Map for Frameworks via ESM CDN -->
-    <script type="importmap">
-        {
-            "imports": {
-                "react": "https://esm.sh/react@18.2.0",
-                "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
-                "framer-motion": "https://esm.sh/framer-motion@11.0.8",
-                "lucide-react": "https://esm.sh/lucide-react@0.344.0"
-            }
-        }
-    </script>
-
-    <!-- Main JavaScript Architecture Entry -->
-    <script type="module" src="app.js"></script>
+    <!-- Main JavaScript Architecture Entry (Vite format) -->
+    <script type="module" src="/app.jsx"></script>
 </body>
 </html>
